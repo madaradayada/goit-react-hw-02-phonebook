@@ -1,60 +1,65 @@
-import React, { Component } from 'react';
+import React from 'react';
 import PropTypes from 'prop-types';
-import styles from './ContactForm.module.css';
+import { Form, Label, Input, Button } from './ContactFormStyled';
 
-export default class ContactForm extends Component {
+export class ContactForm extends React.Component {
   state = {
     name: '',
     number: '',
   };
-
-  handleChange = e => {
-    const { name, value } = e.target;
-    this.setState({
-      [name]: value,
-    });
+  //обновление состояния
+  handleChange = evt => {
+    const { name, value } = evt.currentTarget;
+    this.setState({ [name]: value });
   };
-
-  handleSubmit = e => {
-    e.preventDefault();
-
-    this.props.onAddContact({ ...this.state });
-
+  // Вызывается при отправке формы
+  handleSubmit = evt => {
+    evt.preventDefault();
+    this.props.onSubmit(this.state);
+    this.reset();
+  };
+  //очищаем значение state для очистки формы
+  reset = () => {
     this.setState({ name: '', number: '' });
   };
+
+  static propTypes = {
+    onSubmit: PropTypes.func.isRequired,
+  };
+
   render() {
+    const { name, number } = this.state;
+
     return (
-      <form className={styles.TaskEditor} onSubmit={this.handleSubmit}>
-        <label className={styles.TaskEditor_label}>
+      <Form onSubmit={this.handleSubmit}>
+        <Label htmlFor={this.nameId}>
           Name
-          <input
-            className={styles.TaskEditor_input}
+          <Input
             type="text"
             name="name"
-            value={this.state.name}
+            value={name}
             onChange={this.handleChange}
+            pattern="^[a-zA-Zа-яА-Я]+(([' -][a-zA-Zа-яА-Я ])?[a-zA-Zа-яА-Я]*)*$"
+            title="Name may contain only letters, apostrophe, dash and spaces. For example Adrian, Jacob Mercer, Charles de Batz de Castelmore d'Artagnan"
+            required
           />
-        </label>
-        <label className={styles.TaskEditor_label}>
+        </Label>
+
+        <Label htmlFor={this.numberId}>
           Number
-          <input
-            className={styles.TaskEditor_input}
-            type="text"
+          <Input
+            type="tel"
             name="number"
-            value={this.state.number}
+            value={number}
             onChange={this.handleChange}
+            pattern="\+?\d{1,4}?[-.\s]?\(?\d{1,3}?\)?[-.\s]?\d{1,4}[-.\s]?\d{1,4}[-.\s]?\d{1,9}"
+            title="Phone number must be digits and can contain spaces, dashes, parentheses and can start with +"
+            required
           />
-        </label>
-        <button className={styles.TaskEditor_button} type="submit">
-          Add contact
-        </button>
-      </form>
+        </Label>
+
+        <Button type="submit">Add contact</Button>
+      </Form>
     );
   }
 }
-
-ContactForm.propTypes = {
-  onAddContact: PropTypes.func.isRequired,
-  name: PropTypes.string.isRequired,
-  number: PropTypes.string.isRequired,
-};
